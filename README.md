@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Service Desk API - FastAPI
 
 Sistema backend de gestión de tickets (Service Desk) desarrollado con **FastAPI + MySQL**, orientado a empresas para el manejo de incidencias, asignación de técnicos y seguimiento de solicitudes.
@@ -271,3 +272,6 @@ POST /tickets/1/evidencias
 * Notificaciones
 * SLA
 * Cloud storage (AWS S3)
+=======
+# servicedesk
+>>>>>>> 7379ee4b923faa98f711bef2de9fc40e3642dfc2
