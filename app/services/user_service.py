@@ -2,9 +2,9 @@ from fastapi import HTTPException
 from app.repositories import user_repo
 from app.utils.security import hash_password 
 
-# Crear usuario
+''' Crear usuario '''
 def crear_usuario(db, data):
-    # Validar username único
+    ''' Validar username único '''
     if user_repo.get_user_by_username(db, data.username):
         raise HTTPException(400, "El username ya existe")
 
@@ -19,18 +19,22 @@ def crear_usuario(db, data):
         "user_id": user_id
     }
 
-# Listar usuarios
+
+
+''' Listar usuarios '''
 def listar_usuarios(db, user):
 
-    #Super admin ve todo
+    ''' Super admin ve todo '''
     if user["id_rol"] == 1:
         return user_repo.listar_todos(db)
 
-    #Admin solo su empresa
+    ''' Admin solo su empresa '''
     return user_repo.listar_por_empresa(db, user["id_empresa"])
 
 
-# Obtener usuario por ID
+
+
+''' Obtener usuario por ID '''
 def get_usuario(db, user_id):
     user = user_repo.get_user_by_id(db, user_id)
 
@@ -39,7 +43,9 @@ def get_usuario(db, user_id):
 
     return user
 
-# Actualizar usuario
+
+
+''' Actualizar usuario'''
 def actualizar_usuario(db, user_id, data):
     if not user_repo.get_user_by_id(db, user_id):
         raise HTTPException(404, "Usuario no encontrado")
@@ -50,7 +56,10 @@ def actualizar_usuario(db, user_id, data):
 
     return {"mensaje": "Usuario actualizado"}
 
-#cambiar estado
+
+
+
+'''CAMBIAR ESTADO DE USUARIO: Activo/Inactivo'''
 def cambiar_estado(db, user_id, estado):
     estado = estado.capitalize()
 
