@@ -25,7 +25,7 @@ services:
       - ./.env
     volumes:
       - ./app:/app #monta el backend
-    restart: always
+    restart: "no"
 
 volumes:
   mysql_data:
