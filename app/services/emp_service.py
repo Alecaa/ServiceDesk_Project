@@ -1,3 +1,4 @@
+# pyrefly: ignore [missing-import]
 from fastapi import HTTPException, status
 from app.repositories import emp_repo
 
@@ -28,9 +29,15 @@ def crear_empresa(db, data):
 
     except Exception as e:
         db.rollback()
+        error_str = str(e)
+        if "Duplicate entry" in error_str:
+            raise HTTPException(
+                status_code=400,
+                detail="El código o dato generado ya existe. Por favor, intenta de nuevo."
+            )
         raise HTTPException(
             status_code=500,
-            detail=f"Error al crear empresa: {str(e)}"
+            detail=f"Error al crear empresa: {error_str}"
         )
 
 

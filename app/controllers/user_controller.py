@@ -1,9 +1,10 @@
+# pyrefly: ignore [missing-import]
 from fastapi import APIRouter, Depends, Query, Path
 
 from app.schemas.user_schema import UserCreate, UserUpdate
 from app.services import user_service
 from app.config.db import get_db
-from app.dependencies.auth import require_admin_or_super
+from app.dependencies.auth import require_admin_or_super, get_current_user
 
 router = APIRouter(prefix="/usuarios", tags=["Usuarios"])
 
@@ -17,6 +18,14 @@ def crear_usuario(
 ):
     return user_service.crear_usuario(db, data)
 
+
+# Listar tecnicos
+@router.get("/rol/tecnicos")
+def listar_tecnicos(
+    db=Depends(get_db),
+    user=Depends(get_current_user)
+):
+    return user_service.listar_tecnicos(db)
 
 # Listar usuarios
 @router.get("/")

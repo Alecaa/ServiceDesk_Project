@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Query, Path, HTTPException, status
 from app.schemas.emp_schema import EmpresaCreate, EmpresaUpdate
 from app.services import emp_service
 from app.config.db import get_db
-from app.dependencies.auth import require_super_admin
+from app.dependencies.auth import require_super_admin, get_current_user
 
 router = APIRouter(prefix="/empresa", tags=["Empresa"])
 
@@ -22,7 +22,7 @@ def crear_empresa(
 @router.get("/")
 def listar_empresas(
     db=Depends(get_db),
-    user=Depends(require_super_admin)
+    user=Depends(get_current_user)
 ):
     return emp_service.listar_empresas(db)
 
@@ -33,7 +33,7 @@ def listar_empresas(
 def obtener_empresa(
     emp_id: int = Path(..., gt=0),
     db=Depends(get_db),
-    user=Depends(require_super_admin)
+    user=Depends(get_current_user)
 ):
     empresa = emp_service.get_empresa(db, emp_id)
 

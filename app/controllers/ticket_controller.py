@@ -1,9 +1,11 @@
+# pyrefly: ignore [missing-import]
 from fastapi import APIRouter, Depends, Path, Query
 from app.schemas.ticket_schema import TicketCreate, TicketUpdate
 from app.services import ticket_service
 from app.config.db import get_db
 from app.dependencies.auth import get_current_user, require_admin_or_super
 from app.schemas.ticket_schema import TicketEscalar
+# pyrefly: ignore [missing-import]
 from fastapi import UploadFile, File, Depends
 from app.services import ticket_evidencia_service
 from app.schemas.ticket_schema import TicketSolucion
@@ -11,14 +13,17 @@ from app.schemas.ticket_schema import TicketSolucion
 router = APIRouter(prefix="/tickets", tags=["Tickets"])
 
 
+from fastapi import BackgroundTasks
+
 # Crear ticket (cliente o admin)
 @router.post("/")
 def crear_ticket(
     data: TicketCreate,
+    background_tasks: BackgroundTasks,
     db=Depends(get_db),
     user=Depends(get_current_user)
 ):
-    return ticket_service.crear_ticket(db, data, user)
+    return ticket_service.crear_ticket(db, data, user, background_tasks)
 
 
 # Listar tickets

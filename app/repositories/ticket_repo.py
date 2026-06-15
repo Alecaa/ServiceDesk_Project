@@ -1,4 +1,3 @@
-
 def crear_ticket(db, data, user, num_ticket):
     cursor = db.cursor()
 
@@ -43,17 +42,26 @@ def crear_ticket(db, data, user, num_ticket):
     return cursor.lastrowid
 
 
-
 # Listar tickets
 def listar_tickets(db, user):
     cursor = db.cursor()
 
-    # super admin
+    # Super admin ve todos los tickets del sistema
     if user["id_rol"] == 1:
         cursor.execute("SELECT * FROM tickets ORDER BY id DESC")
         return cursor.fetchall()
 
-    # empresa
+    # Técnico solo ve los tickets asignados a él (id_tec = su id de usuario)
+    if user["id_rol"] == 3:
+        query = """
+        SELECT * FROM tickets
+        WHERE id_tec = %s
+        ORDER BY id DESC
+        """
+        cursor.execute(query, (user["id"],))
+        return cursor.fetchall()
+
+    # Admin (rol 2) y Cliente (rol 4): ven todos los tickets de su empresa
     query = """
     SELECT t.*
     FROM tickets t
@@ -67,13 +75,16 @@ def listar_tickets(db, user):
 
 
 
+
 # Obtener ticket
 def get_ticket(db, ticket_id, user):
     cursor = db.cursor()
 
     query = """
-    SELECT * FROM tickets
-    WHERE id = %s
+    SELECT t.*, e.id as id_empresa_db 
+    FROM tickets t
+    LEFT JOIN empresa e ON t.codigo_empresa = e.codigo_empresa
+    WHERE t.id = %s
     """
 
     cursor.execute(query, (ticket_id,))
@@ -82,19 +93,32 @@ def get_ticket(db, ticket_id, user):
     if not ticket:
         return None
 
-    # Solo super admin o empresa dueña del ticket pueden verlo
-    if user["id_rol"] != 1 and ticket["codigo_empresa"] != user["id_empresa"]:
+    # Lógica de permisos
+    if user["id_rol"] == 1:
+        return ticket
+        
+    if user["id_rol"] == 3:
+        if ticket["id_tec"] == user["id"] or ticket["id_area"] == user["id_area"]:
+            return ticket
         return None
 
-    return ticket
+    if user["id_rol"] in [2, 4]:
+        if ticket["id_empresa_db"] == user["id_empresa"]:
+            return ticket
+        return None
 
+    return None
+
+    
 # Obtener ticket por número de ticket
 def get_ticket_by_number(db, num_ticket, user):
     cursor = db.cursor()
     print("Buscando ticket con número:", num_ticket)  # Debug: Verificar el número de ticket recibido
     query = """
-    SELECT * FROM tickets
-    WHERE num_ticket = %s
+    SELECT t.*, e.id as id_empresa_db 
+    FROM tickets t
+    LEFT JOIN empresa e ON t.codigo_empresa = e.codigo_empresa
+    WHERE t.num_ticket = %s
     """
 
     cursor.execute(query, (num_ticket,))
@@ -103,11 +127,21 @@ def get_ticket_by_number(db, num_ticket, user):
     if not ticket:
         return None
 
-    # Solo super admin o empresa dueña del ticket pueden verlo
-    if user["id_rol"] != 1 and ticket["codigo_empresa"] != user["id_empresa"]:
+    # Lógica de permisos
+    if user["id_rol"] == 1:
+        return ticket
+        
+    if user["id_rol"] == 3:
+        if ticket["id_tec"] == user["id"] or ticket["id_area"] == user["id_area"]:
+            return ticket
         return None
 
-    return ticket
+    if user["id_rol"] in [2, 4]:
+        if ticket["id_empresa_db"] == user["id_empresa"]:
+            return ticket
+        return None
+
+    return None
 
 # Actualizar ticket
 def actualizar_ticket(db, ticket_id, data):
@@ -145,7 +179,14 @@ def asignar_ticket(db, ticket_id, id_tec, id_area):
     """
 
     cursor.execute(query, (id_tec, id_area, ticket_id))
+    
+    query2 = """
+    INSERT INTO tickets_asignados (id_tkt, id_tec, id_area, fecha_inicio)
+    VALUES (%s, %s, %s, NOW())
+    """
+    cursor.execute(query2, (ticket_id, id_tec, id_area))
 
+    db.commit()
 
 # Cambiar estado
 def cambiar_estado(db, ticket_id, estado):

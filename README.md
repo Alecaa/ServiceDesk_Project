@@ -1,3 +1,12 @@
+PARA LEVANTAR EL BACKEND 
+
+docker compose up
+
+sino docker compose down
+y luego docker compose up --build
+
+
+
 # Service Desk API - FastAPI
 
 Sistema backend de gestión de tickets (Service Desk) desarrollado con **FastAPI + MySQL**, orientado a empresas para el manejo de incidencias, asignación de técnicos y seguimiento de solicitudes.

@@ -91,14 +91,12 @@ def cambiar_estado(db, user_id, estado):
 # Listar por empresa
 def listar_por_empresa(db, id_empresa):
     cursor = db.cursor()
+    cursor.execute("SELECT id, username, nombre, correo, contacto, estado, id_rol, id_area FROM users WHERE id_empresa = %s", (id_empresa,))
+    return cursor.fetchall()
 
-    query = """
-    SELECT id, username, nombre, correo, id_empresa
-    FROM users
-    WHERE id_empresa = %s
-    """
-
-    cursor.execute(query, (id_empresa,))
+def listar_tecnicos(db):
+    cursor = db.cursor()
+    cursor.execute("SELECT id, username, nombre, correo, contacto, estado, id_rol, id_area FROM users WHERE id_rol = 3 AND estado = 'Activo'")
     return cursor.fetchall()
 
 def listar_todos(db):

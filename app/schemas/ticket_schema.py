@@ -7,12 +7,14 @@ class TicketCreate(BaseModel):
     tipo_caso: str
     descripcion: str
     prioridad: str
+    comentario: Optional[str] = None
+    evidencia: Optional[str] = None
 
 
 class TicketUpdate(BaseModel):
-    descripcion: Optional[str]
-    prioridad: Optional[str]
-    estado: Optional[str]
+    descripcion: Optional[str] = None
+    prioridad: Optional[str] = None
+    estado: Optional[str] = None
 
 
 class TicketResponse(BaseModel):

@@ -6,8 +6,8 @@ from app.repositories import ticket_evidencia_repo, ticket_repo
 
 UPLOAD_DIR = "uploads/"
 
-
 def subir_evidencia(db, ticket_id, file: UploadFile, user):
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
 
     ticket = ticket_repo.get_ticket(db, ticket_id, user)
     if not ticket:

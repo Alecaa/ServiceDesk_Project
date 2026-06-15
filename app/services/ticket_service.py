@@ -3,21 +3,34 @@ from app.repositories import ticket_repo, ticket_comentario_repo
 from app.schemas.ticket_comentario_schema import ComentarioCreate
 
 
-def crear_ticket(db, data, user):
+from app.utils.websocket_manager import manager
 
-    # 1. crear
+def crear_ticket(db, data, user, background_tasks):
+    # 1. Crear el ticket base
     ticket_id = ticket_repo.crear_ticket(db, data, user, None)
 
-    # 2. generar número seguro
+    # 2. Generar número (TKT-000001)
     num_ticket = f"TKT-{ticket_id:06d}"
 
-    # 3. actualizar
+    # 3. Actualizar número en la base de datos
     ticket_repo.actualizar_numero_ticket(db, ticket_id, num_ticket)
 
+    # 4. GUARDAR EL COMENTARIO INICIAL
+    if hasattr(data, 'comentario') and data.comentario:
+        comentario_data = ComentarioCreate(
+            comentario=data.comentario, 
+            tipo="publico"
+        )
+        ticket_comentario_repo.crear_comentario(db, ticket_id, user, comentario_data)
+
+    # 6. COMMIT ÚNICO
     db.commit()
 
+    # Lanzar notificación en background
+    background_tasks.add_task(manager.broadcast_new_ticket, num_ticket, data.modulo)
+
     return {
-        "mensaje": "Ticket creado",
+        "mensaje": "Ticket creado exitosamente",
         "ticket_id": ticket_id,
         "num_ticket": num_ticket
     }

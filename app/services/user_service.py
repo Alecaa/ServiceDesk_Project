@@ -32,6 +32,11 @@ def listar_usuarios(db, user):
     return user_repo.listar_por_empresa(db, user["id_empresa"])
 
 
+''' Listar tecnicos (para cualquier rol autorizado) '''
+def listar_tecnicos(db):
+    return user_repo.listar_tecnicos(db)
+
+
 
 
 ''' Obtener usuario por ID '''
